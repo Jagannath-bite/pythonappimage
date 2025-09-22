@@ -2,22 +2,15 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // ID from saved credentials
-        IMAGE_NAME = "yourdockerhubusername/myapp"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhubcred')
+        IMAGE_NAME = "yourdockerhubusername/pythonapp"
         IMAGE_TAG = "latest"
     }
 
     stages {
-        stage('Clone Repo') {
-            steps {
-                // For demo, we assume the code is on Jenkins host
-                sh 'mkdir -p workspace && cp -r myapp/* workspace/'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $IMAGE_NAME:$IMAGE_TAG workspace/"
+                sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
             }
         }
 
@@ -32,17 +25,15 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                // Stop existing container if exists
-                sh "docker rm -f myapp-container || true"
-                // Run new container
-                sh "docker run -d --name myapp-container -p 4000:3000 $IMAGE_NAME:$IMAGE_TAG"
+                sh "docker rm -f pythonapp-container || true"
+                sh "docker run -d --name pythonapp-container -p 5000:5000 $IMAGE_NAME:$IMAGE_TAG"
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finished.'
+            echo "Pipeline finished."
         }
     }
 }
